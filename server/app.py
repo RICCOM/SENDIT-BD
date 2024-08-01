@@ -15,3 +15,4 @@ class Home(Resource):
 
 api.add_resource(Home, '/')
 
+
