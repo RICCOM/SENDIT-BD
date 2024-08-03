@@ -12,6 +12,10 @@ flask-bcrypt = "*"
 flask-cors = "*"
 flask-restful = "*"
 flask-jwt-extended = "*"
+cloudinary = "*"
+pillow = "*"
+sendgrid = "*"
+requests = "*"
 
 [dev-packages]
 
