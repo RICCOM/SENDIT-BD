@@ -1,18 +1,17 @@
-from flask import Flask, request, make_response, jsonify
-from flask_restful import Api, Resource
-from flask_jwt_extended import (
-    JWTManager, create_access_token, get_jwt_identity, jwt_required
-)
-import os
-from config import db, app
-from models import User, Parcel, Admin, DeliveryHistory, Notification, ParcelType, Driver
-jwt = JWTManager(app)
-api = Api(app)
+from flask import Flask
+from models import db
+from flask_migrate import Migrate
 
-class Home(Resource):
-    def get(self):
-        return {"message": "Welcome to SendIT!"}
+app = Flask(__name__)
+app.config.from_object('config.Config')
 
-api.add_resource(Home, '/')
+db.init_app(app)
+migrate = Migrate(app, db)
 
+@app.route('/')
+def index():
+    return "SENDIT!"
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
