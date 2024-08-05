@@ -1,81 +1,58 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@localhost/sendit_db'
-db = SQLAlchemy(app)
+from flask import Flask, jsonify, request
 
-class Parcel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    # Other parcel fields
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    status = db.Column(db.String(50))
-    destination = db.Column(db.String(100))
+app = Flask(_name_)
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100))
-    # Other user fields
+# Dummy data for users
+users = [
+    {"id": 1, "username": "user1", "email": "user1@example.com", "role": "user"},
+    {"id": 2, "username": "user2", "email": "user2@example.com", "role": "user"},
+]
 
-@app.route('/user/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    email = data.get('email')
-    # Other user data
-    user = User(email=email)
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'message': 'User registered successfully'}), 201
+@app.route('/users', methods=['GET'])
+def get_users():
+    """Get all users."""
+    return jsonify(users)
 
-@app.route('/user/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data.get('email')
-    # Authentication logic
-    return jsonify({'message': 'User logged in successfully'}), 200
+@app.route('/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    """Get a specific user by ID."""
+    user = next((u for u in users if u["id"] == user_id), None)
+    if user:
+        return jsonify(user)
+    return jsonify({"error": "User not found"}), 404
 
-@app.route('/user/create_parcel', methods=['POST'])
-def create_parcel():
-    data = request.get_json()
-    user_id = data.get('user_id')
-    # Other parcel data
-    parcel = Parcel(user_id=user_id)
-    db.session.add(parcel)
-    db.session.commit()
-    return jsonify({'message': 'Parcel created successfully'}), 201
+@app.route('/users', methods=['POST'])
+def create_user():
+    """Create a new user."""
+    data = request.json
+    new_user = {
+        "id": len(users) + 1,
+        "username": data.get("username"),
+        "email": data.get("email"),
+        "role": data.get("role", "user")
+    }
+    users.append(new_user)
+    return jsonify(new_user), 201
 
-@app.route('/user/change_destination/<int:parcel_id>', methods=['PUT'])
-def change_destination(parcel_id):
-    data = request.get_json()
-    new_destination = data.get('new_destination')
-    parcel = Parcel.query.get(parcel_id)
-    if parcel and parcel.status != 'delivered':
-        parcel.destination = new_destination
-        db.session.commit()
-        return jsonify({'message': 'Destination updated successfully'}), 200
-    return jsonify({'message': 'Parcel not found or already delivered'}), 404
+@app.route('/users/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    """Update an existing user."""
+    user = next((u for u in users if u["id"] == user_id), None)
+    if user:
+        data = request.json
+        user["username"] = data.get("username", user["username"])
+        user["email"] = data.get("email", user["email"])
+        user["role"] = data.get("role", user["role"])
+        return jsonify(user)
+    return jsonify({"error": "User not found"}), 404
 
-@app.route('/user/cancel_parcel/<int:parcel_id>', methods=['PUT'])
-def cancel_parcel(parcel_id):
-    parcel = Parcel.query.get(parcel_id)
-    if parcel and parcel.status != 'delivered':
-        parcel.status = 'cancelled'
-        db.session.commit()
-        return jsonify({'message': 'Parcel cancelled successfully'}), 200
-    return jsonify({'message': 'Parcel not found or already delivered'}), 404
+@app.route('/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    """Delete a user."""
+    global users
+    users = [u for u in users if u["id"] != user_id]
+    return jsonify({"message": "User deleted"}), 204
 
-@app.route('/user/view_parcel/<int:parcel_id>', methods=['GET'])
-def view_parcel(parcel_id):
-    parcel = Parcel.query.get(parcel_id)
-    if parcel:
-        return jsonify({
-            'id': parcel.id,
-            'status': parcel.status,
-            'current_location': parcel.current_location,
-            'destination': parcel.destination
-            # Other parcel details
-        }), 200
-    return jsonify({'message': 'Parcel not found'}), 404
-
-if __name__ == '__main__':
+if __name__ == "_main_":
     app.run(debug=True)
