@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 # Dummy data for admin actions
 admin_actions = [
