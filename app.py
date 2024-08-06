@@ -1,6 +1,7 @@
 from flask import Flask
 from models import db, User, Parcel, Admin, DeliveryHistory, Notification,ParcelType,Driver
 from flask_migrate import Migrate
+from routes import app
 
 
 
