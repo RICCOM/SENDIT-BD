@@ -1,55 +1,37 @@
 from flask import Flask, jsonify, request
+from models import db, Notification
 
 app = Flask(_name_)
 
-# Dummy data for notifications
-notifications = [
-    {"id": 1, "user_id": 1, "message": "Your order has been shipped.", "status": "unread"},
-    {"id": 2, "user_id": 2, "message": "Your account has been verified.", "status": "unread"},
-]
-
 @app.route('/notifications', methods=['GET'])
 def get_notifications():
-    """Get all notifications."""
-    return jsonify(notifications)
+    notifications = Notification.query.all()
+    return jsonify([notification.to_dict() for notification in notifications])
 
 @app.route('/notifications/<int:notification_id>', methods=['GET'])
 def get_notification(notification_id):
-    """Get a specific notification by ID."""
-    notification = next((n for n in notifications if n["id"] == notification_id), None)
-    if notification:
-        return jsonify(notification)
-    return jsonify({"error": "Notification not found"}), 404
+    notification = Notification.query.get_or_404(notification_id)
+    return jsonify(notification.to_dict())
 
 @app.route('/notifications', methods=['POST'])
 def create_notification():
-    """Create a new notification."""
     data = request.json
-    new_notification = {
-        "id": len(notifications) + 1,
-        "user_id": data.get("user_id"),
-        "message": data.get("message"),
-        "status": "unread"
-    }
-    notifications.append(new_notification)
-    return jsonify(new_notification), 201
+    new_notification = Notification(user_id=data['user_id'], parcel_id=data['parcel_id'], message=data['message'])
+    db.session.add(new_notification)
+    db.session.commit()
+    return jsonify(new_notification.to_dict()), 201
 
 @app.route('/notifications/<int:notification_id>', methods=['PUT'])
 def update_notification(notification_id):
-    """Update an existing notification."""
-    notification = next((n for n in notifications if n["id"] == notification_id), None)
-    if notification:
-        data = request.json
-        notification["status"] = data.get("status", notification["status"])
-        return jsonify(notification)
-    return jsonify({"error": "Notification not found"}), 404
+    notification = Notification.query.get_or_404(notification_id)
+    data = request.json
+    notification.message = data.get('message', notification.message)
+    db.session.commit()
+    return jsonify(notification.to_dict())
 
 @app.route('/notifications/<int:notification_id>', methods=['DELETE'])
 def delete_notification(notification_id):
-    """Delete a notification."""
-    global notifications
-    notifications = [n for n in notifications if n["id"] != notification_id]
+    notification = Notification.query.get_or_404(notification_id)
+    db.session.delete(notification)
+    db.session.commit()
     return jsonify({"message": "Notification deleted"}), 204
-
-if __name__ == "_main_":
-    app.run(debug=True)

@@ -1,37 +1,39 @@
 from flask import Flask, jsonify, request
+from models import db, Admin
 
-app = Flask(__name__)
+app = Flask(_name_)
 
-# Dummy data for admin actions
-admin_actions = [
-    {"id": 1, "action": "User created", "details": "user1 was created"},
-    {"id": 2, "action": "User deleted", "details": "user2 was deleted"},
-]
+@app.route('/admins', methods=['GET'])
+def get_admins():
+    admins = Admin.query.all()
+    return jsonify([admin.to_dict() for admin in admins])
 
-@app.route('/admin/actions', methods=['GET'])
-def get_admin_actions():
-    """Get all admin actions."""
-    return jsonify(admin_actions)
+@app.route('/admins/<int:admin_id>', methods=['GET'])
+def get_admin(admin_id):
+    admin = Admin.query.get_or_404(admin_id)
+    return jsonify(admin.to_dict())
 
-@app.route('/admin/actions/<int:action_id>', methods=['GET'])
-def get_admin_action(action_id):
-    """Get a specific admin action by ID."""
-    action = next((a for a in admin_actions if a["id"] == action_id), None)
-    if action:
-        return jsonify(action)
-    return jsonify({"error": "Action not found"}), 404
-
-@app.route('/admin/actions', methods=['POST'])
-def create_admin_action():
-    """Create a new admin action."""
+@app.route('/admins', methods=['POST'])
+def create_admin():
     data = request.json
-    new_action = {
-        "id": len(admin_actions) + 1,
-        "action": data.get("action"),
-        "details": data.get("details")
-    }
-    admin_actions.append(new_action)
-    return jsonify(new_action), 201
+    new_admin = Admin(username=data['username'], email=data['email'], password_hash=data['password_hash'])
+    db.session.add(new_admin)
+    db.session.commit()
+    return jsonify(new_admin.to_dict()), 201
 
-if _name_ == "_main_":
-    app.run(debug=True)
+@app.route('/admins/<int:admin_id>', methods=['PUT'])
+def update_admin(admin_id):
+    admin = Admin.query.get_or_404(admin_id)
+    data = request.json
+    admin.username = data.get('username', admin.username)
+    admin.email = data.get('email', admin.email)
+    admin.password_hash = data.get('password_hash', admin.password_hash)
+    db.session.commit()
+    return jsonify(admin.to_dict())
+
+@app.route('/admins/<int:admin_id>', methods=['DELETE'])
+def delete_admin(admin_id):
+    admin = Admin.query.get_or_404(admin_id)
+    db.session.delete(admin)
+    db.session.commit()
+    return jsonify({"message": "Admin deleted"}), 204
