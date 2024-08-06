@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 def create_app():
-    app = Flask(_name_)
+    app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sendit.db'  # Example database URL
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

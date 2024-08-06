@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, request
 from models import db, DeliveryHistory
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 @app.route('/delivery_history', methods=['GET'])
 def get_delivery_histories():

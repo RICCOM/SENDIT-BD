@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from models import db, Notification
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 @app.route('/notifications', methods=['GET'])
 def get_notifications():
