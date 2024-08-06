@@ -10,6 +10,8 @@ def create_app():
 
     db.init_app(app)
 
+    
+
     with app.app_context():
         from . import users, admins, notifications, drivers, parcel_types, parcels, delivery_history
         app.register_blueprint(users.bp)
