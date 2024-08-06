@@ -8,7 +8,7 @@ def get_parcels():
     parcels = Parcel.query.all()
     return jsonify([parcel.to_dict() for parcel in parcels])
 
-@app.route('/parcels/<int:parcel_id>', methods=['GET'])
+@app.route('/parcels/<int:parcel_id>', methods=['GET' 'POST'])
 def get_parcel(parcel_id):
     parcel = Parcel.query.get_or_404(parcel_id)
     return jsonify(parcel.to_dict())
