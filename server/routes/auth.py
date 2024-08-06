@@ -4,7 +4,7 @@ from models import db, User
 import jwt
 import datetime
 
-auth_bp = Blueprint('auth_bp', _name_)
+auth_bp = Blueprint('auth_bp', __name__)
 
 SECRET_KEY = 'your_secret_key'
 

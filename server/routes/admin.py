@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from models import db, Admin
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 @app.route('/admins', methods=['GET'])
 def get_admins():

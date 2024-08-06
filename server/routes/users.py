@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, request
 from models import db, User
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 @app.route('/users', methods=['GET'])
 def get_users():
