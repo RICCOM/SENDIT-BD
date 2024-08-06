@@ -13,7 +13,7 @@ def get_parcels():
     """Get all parcels."""
     return jsonify(parcels)
 
-@app.route('/parcels/<int:parcel_id>', methods=['GET'])
+@app.route('/parcels/<int:parcel_id>', methods=['GET' 'POST'])
 def get_parcel(parcel_id):
     """Get a specific parcel by ID."""
     parcel = next((p for p in parcels if p["id"] == parcel_id), None)
